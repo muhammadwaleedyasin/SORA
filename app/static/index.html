@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Drone Compliance Platform</title>
+<style>
+  :root {
+    --bg: #0a0f1a;
+    --surface: #111827;
+    --surface2: #1a2236;
+    --border: #2a3550;
+    --primary: #3b82f6;
+    --primary-hover: #2563eb;
+    --accent: #10b981;
+    --danger: #ef4444;
+    --warn: #f59e0b;
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --text-bright: #f8fafc;
+    --radius: 10px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-bright);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+  }
+  .nav-tabs {
+    display: flex;
+    gap: 0;
+    height: 100%;
+  }
+  .nav-tab {
+    padding: 0 1.5rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+  .nav-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--accent);
+  }
+  .status-dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* LAYOUT */
+  .page { display: none; padding: 2rem; max-width: 1200px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  .page-header {
+    margin-bottom: 2rem;
+  }
+  .page-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 0.3rem;
+  }
+  .page-header p {
+    color: var(--text-dim);
+    font-size: 0.9rem;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .card-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1.2rem;
+  }
+
+  /* FORMS */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .form-group label {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+  .form-group input, .form-group select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.6rem 0.8rem;
+    color: var(--text);
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus {
+    border-color: var(--primary);
+  }
+  .form-group select {
+    cursor: pointer;
+  }
+  .form-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 0;
+  }
+  .checkbox-group input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary);
+    cursor: pointer;
+  }
+  .checkbox-group label {
+    font-size: 0.85rem;
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  /* BUTTONS */
+  .btn {
+    padding: 0.7rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+  .btn-primary:hover { background: var(--primary-hover); }
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .btn-row {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  /* RESULTS */
+  .results-container { display: none; }
+  .results-container.visible { display: block; }
+
+  .score-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .score-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.2rem;
+    text-align: center;
+  }
+  .score-card .label {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+  .score-card .value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-bright);
+  }
+  .score-card .value.sail-low { color: var(--accent); }
+  .score-card .value.sail-mid { color: var(--warn); }
+  .score-card .value.sail-high { color: var(--danger); }
+
+  /* OSO TABLE */
+  .oso-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  .oso-table th {
+    text-align: left;
+    padding: 0.7rem 1rem;
+    background: var(--surface2);
+    color: var(--text-dim);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border);
+  }
+  .oso-table td {
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  .oso-table tr:last-child td { border-bottom: none; }
+  .oso-table tr:hover td { background: var(--surface2); }
+
+  .robustness-badge {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .robustness-O { background: #1e293b; color: #64748b; }
+  .robustness-L { background: #1a2e1a; color: #4ade80; }
+  .robustness-M { background: #2a2517; color: #fbbf24; }
+  .robustness-H { background: #2a1717; color: #f87171; }
+
+  /* WARNINGS */
+  .warnings { margin-top: 1rem; }
+  .warning-item {
+    background: #2a251700;
+    border-left: 3px solid var(--warn);
+    padding: 0.6rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0 6px 6px 0;
+    font-size: 0.85rem;
+    color: var(--warn);
+  }
+  .override-item {
+    background: transparent;
+    border-left: 3px solid var(--primary);
+    padding: 0.6rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0 6px 6px 0;
+    font-size: 0.85rem;
+    color: var(--text);
+  }
+
+  /* MITIGATIONS SECTION */
+  .mitigation-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 0.8rem;
+    align-items: end;
+    margin-bottom: 0.8rem;
+  }
+  .mitigation-row .btn-remove {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--danger);
+    padding: 0.6rem 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+  }
+  .btn-add {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--primary);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  /* DMA SPECIFIC */
+  .dma-dimension {
+    margin-bottom: 1.5rem;
+  }
+  .dma-dimension-header {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-bright);
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .dma-dimension-header .dim-code {
+    background: var(--primary);
+    color: white;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+  .dma-question {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--border);
+    gap: 2rem;
+  }
+  .dma-question:last-child { border-bottom: none; }
+  .dma-question-text {
+    font-size: 0.85rem;
+    color: var(--text);
+    flex: 1;
+  }
+  .scale-input {
+    display: flex;
+    gap: 0.3rem;
+  }
+  .scale-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text-dim);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .scale-btn:hover {
+    border-color: var(--primary);
+    color: var(--text);
+  }
+  .scale-btn.selected {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+  }
+
+  /* DMA RESULTS */
+  .dimension-result {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .dimension-result:last-child { border-bottom: none; }
+  .dim-name {
+    width: 200px;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+  .dim-bar-container {
+    flex: 1;
+    height: 8px;
+    background: var(--surface2);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .dim-bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+  }
+  .dim-score {
+    width: 60px;
+    text-align: right;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .dim-level {
+    width: 90px;
+    text-align: right;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .maturity-badge {
+    display: inline-block;
+    padding: 0.3rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  .maturity-Initial { background: #2a1717; color: #f87171; }
+  .maturity-Managed { background: #2a2517; color: #fbbf24; }
+  .maturity-Defined { background: #1a2517; color: #a3e635; }
+  .maturity-Measured { background: #1a2e1a; color: #4ade80; }
+  .maturity-Optimized { background: #172527; color: #2dd4bf; }
+
+  /* LOADING */
+  .loading {
+    display: none;
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-dim);
+  }
+  .loading.visible { display: block; }
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 1rem;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* OUT OF SCOPE ALERT */
+  .out-of-scope-banner {
+    background: linear-gradient(135deg, #2a1717, #1a1117);
+    border: 1px solid var(--danger);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  .out-of-scope-banner h2 {
+    color: var(--danger);
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+  }
+  .out-of-scope-banner p {
+    color: var(--text-dim);
+    font-size: 0.9rem;
+  }
+
+  /* ERROR TOAST */
+  .error-toast {
+    position: fixed;
+    top: 80px;
+    right: 2rem;
+    background: #2a1717;
+    border: 1px solid var(--danger);
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    color: var(--danger);
+    font-size: 0.85rem;
+    z-index: 200;
+    max-width: 400px;
+    animation: slideIn 0.3s ease;
+  }
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  /* CATEGORY BADGE */
+  .category-badge {
+    display: inline-block;
+    padding: 0.1rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .cat-operator { background: #1a2236; color: #60a5fa; }
+  .cat-technical { background: #1a2517; color: #4ade80; }
+  .cat-human_factors { background: #2a2517; color: #fbbf24; }
+  .cat-third_party { background: #251a27; color: #c084fc; }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    nav { padding: 0 1rem; }
+    .page { padding: 1rem; }
+    .form-grid { grid-template-columns: 1fr; }
+    .score-cards { grid-template-columns: repeat(2, 1fr); }
+    .dma-question { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">
+    <div class="logo-icon">D</div>
+    Drone Compliance Platform
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('sora')">SORA Builder</button>
+    <button class="nav-tab" onclick="showPage('dma')">DMA Assessment</button>
+  </div>
+  <div class="nav-status">
+    <div class="status-dot"></div>
+    API Connected
+  </div>
+</nav>
+
+<!-- ========== SORA PAGE ========== -->
+<div id="page-sora" class="page active">
+  <div class="page-header">
+    <h1>SORA 2.5 Risk Assessment</h1>
+    <p>Specific Operations Risk Assessment — calculates GRC, ARC, SAIL, and maps required OSOs</p>
+  </div>
+
+  <!-- Drone Specs -->
+  <div class="card">
+    <div class="card-title">Drone Specifications</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>MTOM (kg)</label>
+        <input type="number" id="mtom" value="2.0" step="0.1" min="0.01">
+      </div>
+      <div class="form-group">
+        <label>Characteristic Dimension (m)</label>
+        <input type="number" id="char_dim" value="0.5" step="0.1" min="0.01">
+      </div>
+      <div class="form-group">
+        <label>Max Speed (m/s)</label>
+        <input type="number" id="max_speed" value="20" step="1" min="0.1">
+      </div>
+    </div>
+  </div>
+
+  <!-- Ground Risk -->
+  <div class="card">
+    <div class="card-title">Ground Risk Parameters</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Max Population Density (ppl/km²)</label>
+        <input type="number" id="pop_density" value="100" step="10" min="0">
+      </div>
+      <div class="form-group" style="justify-content: flex-end;">
+        <div class="checkbox-group">
+          <input type="checkbox" id="controlled_ground">
+          <label for="controlled_ground">Controlled Ground Area</label>
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" id="over_assembly">
+          <label for="over_assembly">Over Assembly of People</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-title" style="margin-top: 1.2rem;">Ground Mitigations</div>
+    <div id="ground-mitigations"></div>
+    <button class="btn-add" onclick="addGroundMitigation()">+ Add Mitigation</button>
+  </div>
+
+  <!-- Air Risk -->
+  <div class="card">
+    <div class="card-title">Air Risk Parameters</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Flight Altitude (m AGL)</label>
+        <input type="number" id="altitude" value="50" step="5" min="1">
+      </div>
+      <div class="form-group">
+        <label>Airspace Class</label>
+        <select id="airspace_class">
+          <option value="G" selected>Class G — Uncontrolled</option>
+          <option value="F">Class F — Uncontrolled</option>
+          <option value="E">Class E — Controlled</option>
+          <option value="D">Class D — Controlled</option>
+          <option value="C">Class C — Controlled</option>
+          <option value="B">Class B — Controlled</option>
+          <option value="A">Class A — Controlled</option>
+        </select>
+      </div>
+      <div class="form-group" style="justify-content: flex-end;">
+        <div class="checkbox-group">
+          <input type="checkbox" id="airport_env">
+          <label for="airport_env">Airport Environment</label>
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" id="segregated">
+          <label for="segregated">Segregated Airspace</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Strategic Air Mitigations -->
+  <div class="card">
+    <div class="card-title">Strategic Air Mitigations</div>
+    <div id="air-mitigations"></div>
+    <button class="btn-add" onclick="addAirMitigation()">+ Add Strategic Mitigation</button>
+  </div>
+
+  <!-- Country -->
+  <div class="card">
+    <div class="card-title">Regulatory Context</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Country</label>
+        <select id="country_code">
+          <option value="NO" selected>Norway (Luftfartstilsynet)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" id="btn-calculate" onclick="calculateSora()">
+      Run SORA Assessment
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" id="sora-loading">
+    <div class="spinner"></div>
+    Running SORA calculation...
+  </div>
+
+  <!-- Results -->
+  <div class="results-container" id="sora-results">
+    <div class="page-header" style="margin-top: 2rem;">
+      <h1>Assessment Results</h1>
+    </div>
+
+    <div class="score-cards" id="score-cards"></div>
+
+    <div class="warnings" id="sora-warnings"></div>
+
+    <div class="card" id="mitigations-applied-card" style="display:none;">
+      <div class="card-title">Mitigations Applied</div>
+      <div id="mitigations-applied"></div>
+    </div>
+
+    <div class="card" id="oso-card">
+      <div class="card-title">Operational Safety Objectives (OSOs)</div>
+      <div style="overflow-x: auto;">
+        <table class="oso-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Objective</th>
+              <th>Category</th>
+              <th>Required Robustness</th>
+            </tr>
+          </thead>
+          <tbody id="oso-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" id="overrides-card" style="display:none;">
+      <div class="card-title">Country-Specific Requirements</div>
+      <div id="sora-overrides"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== DMA PAGE ========== -->
+<div id="page-dma" class="page">
+  <div class="page-header">
+    <h1>Drone Maturity Assessment</h1>
+    <p>Evaluate organizational readiness across 6 dimensions — rate each item from 1 (lowest) to 5 (highest)</p>
+  </div>
+
+  <div class="card">
+    <div class="form-group" style="max-width: 400px;">
+      <label>Organization Name</label>
+      <input type="text" id="org_name" placeholder="e.g. Oslo Kommune">
+    </div>
+  </div>
+
+  <div id="dma-questions-container">
+    <div class="loading visible">
+      <div class="spinner"></div>
+      Loading assessment questions...
+    </div>
+  </div>
+
+  <div class="btn-row" id="dma-submit-row" style="display:none;">
+    <button class="btn btn-primary" id="btn-assess" onclick="runDmaAssessment()">
+      Submit Assessment
+    </button>
+  </div>
+
+  <div class="loading" id="dma-loading">
+    <div class="spinner"></div>
+    Calculating maturity scores...
+  </div>
+
+  <div class="results-container" id="dma-results">
+    <div class="page-header" style="margin-top: 2rem;">
+      <h1>Maturity Assessment Results</h1>
+    </div>
+
+    <div class="score-cards">
+      <div class="score-card">
+        <div class="label">Overall Score</div>
+        <div class="value" id="dma-overall-score">—</div>
+      </div>
+      <div class="score-card">
+        <div class="label">Percentage</div>
+        <div class="value" id="dma-overall-pct">—</div>
+      </div>
+      <div class="score-card" style="grid-column: span 2;">
+        <div class="label">Maturity Level</div>
+        <div id="dma-maturity-level" style="margin-top: 0.3rem;"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Dimension Scores</div>
+      <div id="dma-dimension-results"></div>
+    </div>
+
+    <div class="card" id="dma-recommendations-card" style="display:none;">
+      <div class="card-title">Recommendations</div>
+      <div id="dma-recommendations"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '';
+
+// ========== ERROR HANDLING ==========
+function showError(msg) {
+  const existing = document.querySelector('.error-toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.className = 'error-toast';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 5000);
+}
+
+// ========== NAV ==========
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  event.target.classList.add('active');
+
+  if (page === 'dma' && !dmaLoaded) loadDmaQuestions();
+}
+
+// ========== HEALTH CHECK ==========
+(async function checkHealth() {
+  try {
+    const res = await fetch(API + '/health');
+    if (!res.ok) throw new Error();
+  } catch {
+    document.querySelector('.nav-status').innerHTML =
+      '<div class="status-dot" style="background:var(--danger);animation:none;"></div><span style="color:var(--danger)">API Offline</span>';
+  }
+})();
+
+// ========== SORA ==========
+function addGroundMitigation() {
+  const container = document.getElementById('ground-mitigations');
+  const row = document.createElement('div');
+  row.className = 'mitigation-row';
+  row.innerHTML = `
+    <div class="form-group">
+      <label>Mitigation</label>
+      <select class="gm-code">
+        <option value="M1A">M1A - Sheltering</option>
+        <option value="M1B">M1B - People at Risk Evaluation</option>
+        <option value="M1C">M1C - Containment / ERP</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Robustness</label>
+      <select class="gm-robustness">
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+      </select>
+    </div>
+    <button class="btn-remove" onclick="this.parentElement.remove()">Remove</button>
+  `;
+  container.appendChild(row);
+}
+
+function addAirMitigation() {
+  const container = document.getElementById('air-mitigations');
+  const row = document.createElement('div');
+  row.className = 'mitigation-row';
+  row.innerHTML = `
+    <div class="form-group">
+      <label>Strategic Mitigation</label>
+      <select class="am-code">
+        <option value="TMPR">TMPR - Temporal/Spatial Restrictions</option>
+        <option value="DETECT">DETECT - Detect and Avoid</option>
+        <option value="COMMON">COMMON - Common Structures and Rules</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Robustness</label>
+      <select class="am-robustness">
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+      </select>
+    </div>
+    <button class="btn-remove" onclick="this.parentElement.remove()">Remove</button>
+  `;
+  container.appendChild(row);
+}
+
+async function calculateSora() {
+  const btn = document.getElementById('btn-calculate');
+  const loading = document.getElementById('sora-loading');
+  const results = document.getElementById('sora-results');
+
+  btn.disabled = true;
+  loading.classList.add('visible');
+  results.classList.remove('visible');
+
+  const groundMits = [];
+  document.querySelectorAll('#ground-mitigations .mitigation-row').forEach(row => {
+    groundMits.push({
+      code: row.querySelector('.gm-code').value,
+      robustness: row.querySelector('.gm-robustness').value,
+    });
+  });
+
+  const airMits = [];
+  document.querySelectorAll('#air-mitigations .mitigation-row').forEach(row => {
+    airMits.push({
+      code: row.querySelector('.am-code').value,
+      robustness: row.querySelector('.am-robustness').value,
+    });
+  });
+
+  const payload = {
+    mtom_kg: parseFloat(document.getElementById('mtom').value),
+    characteristic_dimension_m: parseFloat(document.getElementById('char_dim').value),
+    max_speed_ms: parseFloat(document.getElementById('max_speed').value),
+    max_population_density: parseFloat(document.getElementById('pop_density').value),
+    is_controlled_ground: document.getElementById('controlled_ground').checked,
+    is_over_assembly: document.getElementById('over_assembly').checked,
+    ground_mitigations: groundMits,
+    flight_altitude_m: parseFloat(document.getElementById('altitude').value),
+    airspace_class: document.getElementById('airspace_class').value,
+    is_airport_environment: document.getElementById('airport_env').checked,
+    is_segregated_airspace: document.getElementById('segregated').checked,
+    strategic_mitigations: airMits,
+    country_code: document.getElementById('country_code').value,
+  };
+
+  try {
+    const res = await fetch(API + '/api/v1/sora/calculate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      showError(data.detail || 'Validation error. Check your inputs.');
+      return;
+    }
+    renderSoraResults(data);
+  } catch (err) {
+    showError('Failed to connect to API: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    loading.classList.remove('visible');
+  }
+}
+
+function sailClass(sail) {
+  const level = {'I':1,'II':2,'III':3,'IV':4,'V':5,'VI':6}[sail] || 0;
+  if (level <= 2) return 'sail-low';
+  if (level <= 4) return 'sail-mid';
+  return 'sail-high';
+}
+
+function categoryBadge(cat) {
+  const labels = {operator:'Operator', technical:'Technical', human_factors:'Human Factors', third_party:'Third Party'};
+  return `<span class="category-badge cat-${cat}">${labels[cat] || cat}</span>`;
+}
+
+function renderSoraResults(data) {
+  const isOutOfScope = data.sail_level === 'N/A' || data.intrinsic_grc === 0;
+
+  // Score cards
+  const cards = document.getElementById('score-cards');
+  if (isOutOfScope) {
+    cards.innerHTML = `
+      <div class="out-of-scope-banner" style="grid-column: 1 / -1;">
+        <h2>Outside SORA Scope</h2>
+        <p>This operational scenario exceeds the boundaries of the SORA methodology.<br>
+        A full risk assessment by the competent authority is required.</p>
+      </div>
+    `;
+  } else {
+    cards.innerHTML = `
+      <div class="score-card">
+        <div class="label">Intrinsic GRC</div>
+        <div class="value">${data.intrinsic_grc}</div>
+      </div>
+      <div class="score-card">
+        <div class="label">Final GRC</div>
+        <div class="value">${data.final_grc}</div>
+      </div>
+      <div class="score-card">
+        <div class="label">Initial ARC</div>
+        <div class="value" style="font-size:1.3rem;">${data.initial_arc}</div>
+      </div>
+      <div class="score-card">
+        <div class="label">Residual ARC</div>
+        <div class="value" style="font-size:1.3rem;">${data.residual_arc}</div>
+      </div>
+      <div class="score-card" style="grid-column: span 2;">
+        <div class="label">SAIL Level</div>
+        <div class="value ${sailClass(data.sail_level)}">${data.sail_level}</div>
+      </div>
+    `;
+  }
+
+  // Warnings
+  const warningsDiv = document.getElementById('sora-warnings');
+  warningsDiv.innerHTML = data.warnings.map(w =>
+    `<div class="warning-item">${w}</div>`
+  ).join('');
+
+  // Mitigations applied
+  const allMits = [...data.applied_ground_mitigations, ...data.applied_strategic_mitigations];
+  const mitCard = document.getElementById('mitigations-applied-card');
+  const mitDiv = document.getElementById('mitigations-applied');
+  if (allMits.length > 0) {
+    mitCard.style.display = 'block';
+    mitDiv.innerHTML = `<table class="oso-table">
+      <thead><tr><th>Code</th><th>Name</th><th>Robustness</th><th>Reduction</th></tr></thead>
+      <tbody>${allMits.map(m => `<tr>
+        <td><strong>${m.code}</strong></td><td>${m.name}</td>
+        <td><span class="robustness-badge robustness-${m.robustness[0].toUpperCase()}">${m.robustness}</span></td>
+        <td style="color:var(--accent);">-${m.reduction}</td>
+      </tr>`).join('')}</tbody></table>`;
+  } else {
+    mitCard.style.display = 'none';
+  }
+
+  // OSO table
+  const osoCard = document.getElementById('oso-card');
+  const tbody = document.getElementById('oso-tbody');
+  if (isOutOfScope || data.oso_requirements.length === 0) {
+    osoCard.style.display = 'none';
+  } else {
+    osoCard.style.display = 'block';
+    tbody.innerHTML = data.oso_requirements.map(oso => `
+      <tr>
+        <td><strong>OSO #${oso.oso_number}</strong></td>
+        <td>${oso.title}</td>
+        <td>${categoryBadge(oso.category)}</td>
+        <td><span class="robustness-badge robustness-${oso.required_robustness}">${
+          {O:'Optional', L:'Low', M:'Medium', H:'High'}[oso.required_robustness] || oso.required_robustness
+        }</span></td>
+      </tr>
+    `).join('');
+  }
+
+  // Country overrides
+  const overridesCard = document.getElementById('overrides-card');
+  const overridesDiv = document.getElementById('sora-overrides');
+  if (data.country_overrides_applied.length > 0) {
+    overridesCard.style.display = 'block';
+    overridesDiv.innerHTML = data.country_overrides_applied.map(o =>
+      `<div class="override-item">${o}</div>`
+    ).join('');
+  } else {
+    overridesCard.style.display = 'none';
+  }
+
+  document.getElementById('sora-results').classList.add('visible');
+  document.getElementById('sora-results').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ========== DMA ==========
+let dmaLoaded = false;
+let dmaQuestions = {};
+
+async function loadDmaQuestions() {
+  try {
+    const [dimRes, qRes] = await Promise.all([
+      fetch(API + '/api/v1/dma/dimensions'),
+      fetch(API + '/api/v1/dma/questions'),
+    ]);
+    if (!dimRes.ok || !qRes.ok) throw new Error('Failed to load assessment data');
+    const dimensions = await dimRes.json();
+    const questions = await qRes.json();
+
+    const container = document.getElementById('dma-questions-container');
+    container.innerHTML = '';
+
+    dimensions.forEach(dim => {
+      const dimQuestions = questions.filter(q => q.dimension_id === dim.id);
+      const section = document.createElement('div');
+      section.className = 'card dma-dimension';
+      section.innerHTML = `
+        <div class="dma-dimension-header">
+          <span class="dim-code">${dim.code}</span>
+          ${dim.name}
+        </div>
+        ${dim.description ? `<p style="color: var(--text-dim); font-size: 0.8rem; margin-bottom: 1rem;">${dim.description}</p>` : ''}
+        ${dimQuestions.map(q => `
+          <div class="dma-question">
+            <div class="dma-question-text">${q.question_text}</div>
+            <div class="scale-input">
+              ${[1,2,3,4,5].map(v => `
+                <button class="scale-btn" data-code="${q.question_code}" data-value="${v}"
+                  onclick="selectScale(this)">${v}</button>
+              `).join('')}
+            </div>
+          </div>
+        `).join('')}
+      `;
+      container.appendChild(section);
+    });
+
+    document.getElementById('dma-submit-row').style.display = 'flex';
+    dmaLoaded = true;
+  } catch (err) {
+    document.getElementById('dma-questions-container').innerHTML =
+      `<div class="card" style="color: var(--danger);">Failed to load questions: ${err.message}</div>`;
+  }
+}
+
+function selectScale(btn) {
+  const code = btn.dataset.code;
+  const value = parseInt(btn.dataset.value);
+  dmaQuestions[code] = value;
+
+  btn.parentElement.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+async function runDmaAssessment() {
+  const btn = document.getElementById('btn-assess');
+  const loading = document.getElementById('dma-loading');
+  const results = document.getElementById('dma-results');
+
+  if (Object.keys(dmaQuestions).length === 0) {
+    showError('Please answer at least one question before submitting.');
+    return;
+  }
+
+  btn.disabled = true;
+  loading.classList.add('visible');
+  results.classList.remove('visible');
+
+  const payload = {
+    organization_name: document.getElementById('org_name').value || null,
+    responses: dmaQuestions,
+  };
+
+  try {
+    const res = await fetch(API + '/api/v1/dma/assess', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      showError(data.detail || 'Assessment failed. Check your inputs.');
+      return;
+    }
+    renderDmaResults(data);
+  } catch (err) {
+    showError('Failed to connect to API: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    loading.classList.remove('visible');
+  }
+}
+
+function barColor(pct) {
+  if (pct >= 80) return 'var(--accent)';
+  if (pct >= 60) return '#a3e635';
+  if (pct >= 40) return 'var(--warn)';
+  return 'var(--danger)';
+}
+
+function renderDmaResults(data) {
+  document.getElementById('dma-overall-score').textContent = data.overall_score.toFixed(1) + ' / 5.0';
+  document.getElementById('dma-overall-pct').textContent = data.overall_percentage.toFixed(0) + '%';
+  document.getElementById('dma-maturity-level').innerHTML =
+    `<span class="maturity-badge maturity-${data.maturity_level}">${data.maturity_level}</span>`;
+
+  const dimResults = document.getElementById('dma-dimension-results');
+  dimResults.innerHTML = data.dimension_scores.map(ds => `
+    <div class="dimension-result">
+      <div class="dim-name">${ds.dimension_name}</div>
+      <div class="dim-bar-container">
+        <div class="dim-bar" style="width: ${ds.percentage}%; background: ${barColor(ds.percentage)};"></div>
+      </div>
+      <div class="dim-score">${ds.score.toFixed(1)} / ${ds.max_score.toFixed(1)}</div>
+      <div class="dim-level" style="color: ${barColor(ds.percentage)}">${ds.level}</div>
+    </div>
+  `).join('');
+
+  const recCard = document.getElementById('dma-recommendations-card');
+  const recDiv = document.getElementById('dma-recommendations');
+  if (data.recommendations.length > 0) {
+    recCard.style.display = 'block';
+    recDiv.innerHTML = data.recommendations.map(r =>
+      `<div class="warning-item" style="border-left-color: var(--primary);">${r}</div>`
+    ).join('');
+  } else {
+    recCard.style.display = 'none';
+  }
+
+  document.getElementById('dma-results').classList.add('visible');
+  document.getElementById('dma-results').scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
